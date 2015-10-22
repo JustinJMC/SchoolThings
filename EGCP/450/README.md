@@ -10,3 +10,5 @@ Lab 4 is using the PWM and Input Capture abilities of the Dragon 12 board to mea
 Lab 5 is a continuation of lab 4. Using the Input/Output Compare and the Pulse Accumulators to measure a generated signal.
 
 Lab 6 is exploring FSMs. Part 1 is creating a Traffic stop (Moore FSM), part 2 is simulating a robot, and its emotions (Mealy FSM). 
+
+Lab 7 is a postfix calculator.
