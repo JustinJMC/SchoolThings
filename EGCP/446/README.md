@@ -1,6 +1,6 @@
 This is EGCP 446 Advanced Digital Design Using Verilog HDL
 
-Assignment 1 is not here (review)
+Assignment 1 is not included (trivial)
 
 Assignment 2 is implementing a full subtractor
 
