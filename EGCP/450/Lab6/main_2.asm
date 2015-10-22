@@ -1,6 +1,6 @@
 ;****************************************************************
 ;* 
-;* Robot w/ feelings Mealy FSM
+;* Feeling Robot
 ;*
 ;****************************************************************
 
@@ -38,7 +38,7 @@ SIT_UP EQU $01 ; Pulse on PB0
 ; KEEP THIS!!		
 ;----------------------------------------------------  
           ORG     DATA
-      ;00  ,01      ,10     ,11
+;button;0001,0010   ,0100   ,1000
 STAND:;ok  ,tired   ,curious, anxious
   FCB NONE ,SIT_DOWN,NONE   ,NONE     ;current "emotion"
   FDB STAND,SIT     ,STAND  ,STAND    ;next state
@@ -51,7 +51,7 @@ SLEEP:
   
 START rmb 2
 DELAY fdb 1876 ; 10ms for 187.5khz 
-TIME  fdb 1
+TIME  fdb 50  ; 50* 10ms = 500ms
 ;---------------------------------------------------- 
 ; Code Section
 ; KEEP THIS!!		
@@ -71,12 +71,12 @@ Entry:                          ; KEEP THIS LABEL!!
 FSM: ;read sensors
   ldab PTH 
   comb     ;buttons are negative logic
-  andb #$03;just bits 1-0
-  ldy #TIME  ;load the time delay into y
-  ;bsr T_Wait ;introduce delay for user
+  andb #$0f;just bits 3-0
+  bsr Button_Map;due to error in button mapping/this is fix
+  ldy TIME  ;load the time delay into y
+  bsr T_Wait ;introduce delay for user
   
-  ;determine what output
-  
+  ;determine what output3
   abx        ;base+ionput
   ldaa OUT,X ;fetch output
   
@@ -90,13 +90,13 @@ Case2:
   cmpa #LIE_DOWN ;case 2 chage to sleep from sit 
   bne Case4  
   ;data here       
-  ldaa #$01;sleeping
+  ldaa #$04;standing
   bra EndSwitch
 Case4:
   cmpa #STAND_UP ;case 4 change to stand from sit
   bne Case8 
   ;data here    
-  ldaa #$04;standing
+  ldaa #$01;sleeping
   bra EndSwitch
 Case8:
   cmpa #SIT_DOWN ;case 8 change to sit from stand
@@ -150,12 +150,46 @@ Timer_INIT:
 ;---------------------------------------------------- 
 ; Subroutines    
 ;----------------------------------------------------
-  
+Button_Map:
+  ;expecting reg b to have the pushbuttons for the input
+  ;will change reg b to match previous code
+  ;case 
+case_8: ;case 4 
+  cmpb #$08 ;ph3, anxious
+  bne case_4
+  ldab #$03 ; 11 is anxious
+  bra BMCaseDone
+case_4: ;case 3
+  cmpb #$04  ;ph2, curious
+  bne case_2 
+  ldab #$02 ; 10 is ok
+  bra BMCaseDone
+case_2: ;case 2
+  cmpb #$02  ;ph1, tired
+  bne case_1 
+  ldab #$01 ; 01 is ok
+  bra BMCaseDone
+case_1: ;case 1
+  ;cmpb $01  ;ph0, ok
+  ;bne case_2 
+  ;button mapped to OK is default
+  ldab #$00 ; 00 is ok
+  ;bra BMCaseDone
+BMCaseDone:
+  rts
+
 T_Wait: ;wait for y*10ms
-  bsr T_Wait_10ms
+  psha     ;save registers
+  pshb      
+  pshx
+T_Wait_Loop:
+  bsr T_Wait_10ms      
   dey
   cpy #0
-  bne T_Wait
+  bne T_Wait_Loop
+  pulx     ;return registers
+  pulb
+  pula
   rts
   
 T_Wait_10ms:
