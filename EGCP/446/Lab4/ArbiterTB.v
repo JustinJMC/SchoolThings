@@ -41,17 +41,20 @@ module ArbiterTB ();
 	//initial variables
 	initial //set initial variables
 	begin
-		$display ($time, "<< Starting Simulation >>");
+		$display ($time, " << Starting Simulation >>");
 		reset=1'b1;
 		requests=4'b0000;
-		$display ($time, "<<variables set>>");
-		$monitor ($time, "<<reset = %b, requests = %b, grantAccess = %b>>",reset,requests,grantAccess);
+		$display ($time, " <<variables set>>");
+		$display ($time, " <<at 5 is negedge, at 0 is posedge>>");
+		$monitor ($time, " <<reset = %b, requests = %b, grantAccess = %b>>",reset,requests,grantAccess);
 	end//end initialize variables
 		
 	initial //set end time
 	begin
-		#187 reset = ~reset;
-		#50 $stop;
+		#187 $display ($time, " <<reset is set low>>");
+		reset = ~reset;
+		#50 $display ($time, " <<simulation is over>>");
+		$stop;
 	end //end end time
 	
 	//always blocks
